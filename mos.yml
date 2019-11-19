@@ -1,0 +1,15 @@
+author: Nothing3000
+type: lib
+description: GDBStub for mongoose-os
+version: 1.0
+
+sources:
+  - src
+includes:
+  - include
+
+cflags:
+  - "-ggdb"
+  - "-Og"
+
+manifest_version: 2017-09-29
