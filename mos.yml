@@ -5,11 +5,12 @@ version: 1.0
 
 sources:
   - src
+  - src/gdbstub-entry.S
 includes:
   - include
 
 cflags:
   - "-ggdb"
-  - "-Og"
+  - "-O0"
 
 manifest_version: 2017-09-29

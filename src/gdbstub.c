@@ -75,6 +75,10 @@ int os_printf_plus(const char *format, ...)  __attribute__ ((format (printf, 1, 
 
 #endif
 
+void ets_wdt_enable(void);
+void ets_wdt_disable(void);
+void ets_isr_unmask(int);
+
 #define EXCEPTION_GDB_SP_OFFSET 0x100
 
 
@@ -298,7 +302,7 @@ static void ATTR_GDBFN sendReason() {
 	} else if (gdbstub_savedRegs.reason&0x80) {
 		//We stopped because of an exception. Convert exception code to a signal number and send it.
 		i=gdbstub_savedRegs.reason&0x7f;
-		if (i<sizeof(exceptionSignal)) gdbPacketHex(exceptionSignal[i], 8); else gdbPacketHex(11, 8);
+		if (i<(int)sizeof(exceptionSignal)) gdbPacketHex(exceptionSignal[i], 8); else gdbPacketHex(11, 8);
 	} else {
 		//We stopped because of a debugging exception.
 		gdbPacketHex(5, 8); //sigtrap
@@ -323,6 +327,8 @@ static int ATTR_GDBFN gdbHandleCommand(unsigned char *cmd, int len) {
 	//Handle a command
 	int i, j, k;
 	unsigned char *data=cmd+1;
+
+	(void) len;
 	if (cmd[0]=='g') {		//send all registers to gdb
 		gdbPacketStart();
 		gdbPacketHex(iswap(gdbstub_savedRegs.a0), 32);
@@ -660,7 +666,7 @@ static void ATTR_GDBINIT install_exceptions() {
 			EXCCAUSE_DIVIDE_BY_ZERO, EXCCAUSE_UNALIGNED, EXCCAUSE_INSTR_DATA_ERROR, EXCCAUSE_LOAD_STORE_DATA_ERROR, 
 			EXCCAUSE_INSTR_ADDR_ERROR, EXCCAUSE_LOAD_STORE_ADDR_ERROR, EXCCAUSE_INSTR_PROHIBITED,
 			EXCCAUSE_LOAD_PROHIBITED, EXCCAUSE_STORE_PROHIBITED};
-	for (i=0; i<(sizeof(exno)/sizeof(exno[0])); i++) {
+	for (i=0; i<(int)((sizeof(exno)/sizeof(exno[0]))); i++) {
 		_xtos_set_exception_handler(exno[i], gdb_exception_handler);
 	}
 }
@@ -687,6 +693,8 @@ static void ATTR_GDBINIT install_exceptions() {
 
 static void ATTR_GDBFN uart_hdlr(void *arg, void *frame) {
 	int doDebug=0, fifolen=0;
+
+	(void) arg;
 	//Save the extra registers the Xtensa HAL doesn't save
 	gdbstub_save_extra_sfrs_for_exception();
 
@@ -714,7 +722,7 @@ static void ATTR_GDBFN uart_hdlr(void *arg, void *frame) {
 }
 
 static void ATTR_GDBINIT install_uart_hdlr() {
-	ets_isr_attach(ETS_UART_INUM, uart_hdlr, NULL);
+	ets_isr_attach(ETS_UART_INUM, (ets_isr_t)uart_hdlr, NULL);
 	SET_PERI_REG_MASK(UART_INT_ENA(0), UART_RXFIFO_FULL_INT_ENA|UART_RXFIFO_TOUT_INT_ENA);
 	ets_isr_unmask((1<<ETS_UART_INUM)); //enable uart interrupt
 }

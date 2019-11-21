@@ -7,7 +7,7 @@
  *******************************************************************************/
 
 
-#include "gdbstub-cfg.h"
+#include "../include/gdbstub-cfg.h"
 
 #include <xtensa/config/specreg.h>
 #include <xtensa/config/core-isa.h>
