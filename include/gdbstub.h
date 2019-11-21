@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void gdbstub_init();
+void mgos_esp_gdbstub_init();
 
 #ifdef __cplusplus
 }
