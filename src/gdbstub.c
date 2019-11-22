@@ -779,7 +779,7 @@ static void ATTR_GDBINIT install_uart_hdlr() {
 
 
 //gdbstub initialization routine.
-void ATTR_GDBINIT mgos_esp_gdbstub_init() {
+int ATTR_GDBINIT mgos_esp_gdbstub_init() {
 #if GDBSTUB_REDIRECT_CONSOLE_OUTPUT
 	os_install_putc1(gdb_semihost_putchar1);
 #endif
@@ -791,5 +791,6 @@ void ATTR_GDBINIT mgos_esp_gdbstub_init() {
 #if GDBSTUB_BREAK_ON_INIT
 	gdbstub_do_break();
 #endif
+	return 1;
 }
 
