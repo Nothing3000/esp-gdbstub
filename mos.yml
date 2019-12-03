@@ -6,11 +6,19 @@ version: 1.0
 sources:
   - src
   - src/gdbstub-entry.S
+
 includes:
   - include
 
 cflags:
   - "-ggdb"
   - "-O0"
+
+build_vars:
+  MGOS_DEBUG_UART: -1
+
+config_schema:
+  - ["debug.stdout_uart",-1]
+  - ["debug.stderr_uart",-1]
 
 manifest_version: 2017-09-29
